@@ -8,7 +8,7 @@ Here is a synthesized set of hypotheses that integrate the strongest ideas from 
 This hypothesis builds on the innovator's idea that DGNNs augmented with causal inference algorithms can uncover neuroscientifically plausible connectivity patterns, while addressing the contrarian's concerns about the limitations of dynamic models and the noise-prone nature of EEG signals. Adding causal constraints may mitigate noise amplification by focusing on meaningful, stable relationships, rather than transient fluctuations. The pragmatist's emphasis on feasibility aligns with the use of existing datasets (e.g., DEAP, SEED) and efficient implementations of causal discovery frameworks.
 
 #### Measurable Prediction:
-- **Prediction**: DGNNs with causal adjacency updates will achieve a 5–10% accuracy improvement in emotion recognition on the DEAP and SEED datasets. The learned connectivity patterns will show alignment with known neuroscientific theories, particularly in emotion-related regions (e.g., frontal-temporal connections).
+- **Prediction**: DGNNs with causal adjacency updates will achieve a 5–10% accuracy improvement in emotion recognition on the DREAMER datasets. The learned connectivity patterns will show alignment with known neuroscientific theories, particularly in emotion-related regions (e.g., frontal-temporal connections).
 - **Failure Condition**: If causal DGNNs do not outperform correlation-based methods in accuracy or fail to produce adjacency matrices aligned with neuroscientific priors, the hypothesis will be falsified.
 
 #### Unresolved Disagreements:
