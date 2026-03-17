@@ -1778,6 +1778,31 @@ def _execute_synthesis(
         for path in sorted(Path(cards_path).glob("*.md"))[:24]:
             snippets.append(path.read_text(encoding="utf-8"))
         cards_context = "\n\n".join(snippets)
+    # ── Community knowledge injection ────────────────────────────
+    community_result = None
+    refine_result = None
+    if getattr(config, "community", None) and config.community.enabled:
+        from researchclaw.community.bridge import run_community_bridge  # noqa: PLC0415
+        from researchclaw.community.refiner import refine_community_ideas  # noqa: PLC0415
+
+        community_result = run_community_bridge(config.community, run_dir, llm)
+
+        if community_result.cards_text:
+            refine_result = refine_community_ideas(
+                community_result,
+                cards_context,
+                config.community,
+                llm,
+                log_dir=run_dir / "community-refine",
+                topic=config.research.topic,
+            )
+            cards_context += "\n\n" + community_result.cards_text
+            if refine_result.final_proposal:
+                cards_context += (
+                    "\n\n## Refined Community Proposal\n"
+                    + refine_result.final_proposal
+                )
+    # ── End community injection ──────────────────────────────────
     if llm is not None:
         _pm = prompts or PromptManager()
         sp = _pm.for_stage(
@@ -1886,6 +1911,17 @@ def _execute_hypothesis_gen(
         # --- Multi-perspective debate ---
         perspectives_dir = stage_dir / "perspectives"
         variables = {"topic": config.research.topic, "synthesis": synthesis}
+        # ── Inject community refined proposal into hypothesis context ──
+        if getattr(config, "community", None) and config.community.enabled:
+            refined_proposal = _read_prior_artifact(run_dir, "community-refine/FINAL_PROPOSAL.md")
+            if refined_proposal:
+                variables["synthesis"] += (
+                    "\n\n## Community-Refined Research Proposal\n"
+                    + refined_proposal
+                    + "\n\nIMPORTANT: The above proposal was refined through community knowledge "
+                    "and structured review. Prioritize hypotheses that align with or extend this proposal."
+                )
+        # ── End community injection ──
         perspectives = _multi_perspective_generate(
             llm, DEBATE_ROLES_HYPOTHESIS, variables, perspectives_dir
         )

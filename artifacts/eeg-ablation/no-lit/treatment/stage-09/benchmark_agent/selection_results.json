@@ -1,0 +1,71 @@
+{
+  "selected_benchmarks": [
+    {
+      "name": "Cora",
+      "tier": 2,
+      "domain": "node_classification",
+      "size_mb": 5,
+      "classes": 7,
+      "samples": 2708,
+      "metrics": [
+        "accuracy",
+        "f1_macro"
+      ],
+      "api": "torch_geometric.datasets.Planetoid(root='/workspace/data', name='Cora')",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base",
+      "role": "secondary"
+    }
+  ],
+  "selected_baselines": [
+    {
+      "name": "GCN",
+      "source": "torch_geometric.nn.GCNConv",
+      "paper": "Kipf & Welling, Semi-Supervised Classification with GCN, ICLR 2017",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GAT",
+      "source": "torch_geometric.nn.GATConv",
+      "paper": "Velickovic et al., Graph Attention Networks, ICLR 2018",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GraphSAGE",
+      "source": "torch_geometric.nn.SAGEConv",
+      "paper": "Hamilton et al., Inductive Representation Learning, NeurIPS 2017",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GIN",
+      "source": "torch_geometric.nn.GINConv",
+      "paper": "Xu et al., How Powerful are GNNs?, ICLR 2019",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    }
+  ],
+  "required_pip": [
+    "torch-geometric"
+  ],
+  "rationale": "The DEAP dataset is the domain standard for EEG-based emotion recognition and is widely used in top-tier research, making it the optimal primary benchmark. The SEED dataset complements DEAP as it is another well-established dataset in this domain, providing additional validation for the proposed methods. For baselines, GCN and GAT are classic models that are foundational in graph neural networks, while GraphSAGE and GIN are more recent and powerful architectures that can provide a comprehensive comparison. These baselines ensure a balance between classic and state-of-the-art methods, aligning with the research focus on dynamic graph construction techniques.",
+  "experiment_notes": "Ensure that the DEAP and SEED datasets are preprocessed to construct both static predefined graphs and dynamic graphs (adaptive adjacency and temporal sliding-window graphs). Use metrics like accuracy and F1-score for evaluation, as they are standard for emotion recognition tasks. Given the GPU and time constraints, batch processing and optimized graph construction methods should be employed to manage computational load. Additionally, hyperparameter tuning should be consistent across all baselines to ensure fair comparisons.",
+  "total_filtered": 8
+}

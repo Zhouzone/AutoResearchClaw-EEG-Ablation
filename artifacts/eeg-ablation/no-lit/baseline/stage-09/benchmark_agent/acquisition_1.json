@@ -1,0 +1,12 @@
+{
+  "requirements": "torch-geometric",
+  "benchmark_names": [
+    "CIFAR-10"
+  ],
+  "baseline_names": [
+    "GCN",
+    "GAT",
+    "GraphSAGE",
+    "Adam"
+  ]
+}

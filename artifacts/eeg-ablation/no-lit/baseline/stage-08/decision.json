@@ -1,0 +1,16 @@
+{
+  "stage_id": "08-hypothesis_gen",
+  "run_id": "rc-no-lit-baseline-20260316T153407",
+  "status": "done",
+  "decision": "proceed",
+  "output_artifacts": [
+    "hypotheses.md",
+    "novelty_report.json"
+  ],
+  "evidence_refs": [
+    "stage-08/hypotheses.md"
+  ],
+  "error": null,
+  "ts": "2026-03-16T15:36:44+00:00",
+  "next_stage": 9
+}

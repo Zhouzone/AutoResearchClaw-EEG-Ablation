@@ -1,0 +1,15 @@
+{
+  "stage_id": "07-synthesis",
+  "run_id": "rc-no-lit-baseline-20260316T153407",
+  "status": "done",
+  "decision": "proceed",
+  "output_artifacts": [
+    "synthesis.md"
+  ],
+  "evidence_refs": [
+    "stage-07/synthesis.md"
+  ],
+  "error": null,
+  "ts": "2026-03-16T15:34:37+00:00",
+  "next_stage": 8
+}

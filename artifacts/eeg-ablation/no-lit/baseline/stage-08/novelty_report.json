@@ -1,0 +1,17 @@
+{
+  "topic": "Dynamic graph neural networks for EEG-based emotion recognition: comparing dynamic graph construction (adaptive adjacency, temporal sliding-window graphs) against static predefined graphs on DEAP and SEED datasets",
+  "hypotheses_checked": 17,
+  "search_queries": [
+    "Dynamic graph neural networks for EEG-based emotion recognition: comparing dynamic graph construction (adaptive adjacency, temporal sliding-window graphs) against static predefined graphs on DEAP and SEED datasets",
+    "synthesis hypotheses combines strongest ideas"
+  ],
+  "similar_papers_found": 0,
+  "novelty_score": 1.0,
+  "assessment": "high",
+  "similar_papers": [],
+  "recommendation": "proceed",
+  "similarity_threshold": 0.25,
+  "search_coverage": "full",
+  "total_papers_retrieved": 46,
+  "generated": "2026-03-16T15:36:44+00:00"
+}

@@ -1,0 +1,9 @@
+{
+  "stage_id": "12-experiment_run",
+  "run_id": "rc-no-lit-baseline-20260316T153407",
+  "duration_sec": 0.01,
+  "status": "done",
+  "artifacts_count": 1,
+  "error": null,
+  "timestamp": "2026-03-16T15:42:26+00:00"
+}

@@ -1,0 +1,78 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "name": "NoCommunityDetection",
+      "depends_on": [],
+      "gpu_count": 2,
+      "estimated_minutes": 3600,
+      "priority": 2
+    },
+    {
+      "id": 2,
+      "name": "FixedSlidingWindow",
+      "depends_on": [],
+      "gpu_count": 2,
+      "estimated_minutes": 3600,
+      "priority": 2
+    },
+    {
+      "id": 3,
+      "name": "StaticOnlyGraph",
+      "depends_on": [],
+      "gpu_count": 2,
+      "estimated_minutes": 3600,
+      "priority": 2
+    },
+    {
+      "id": 4,
+      "name": "StaticGraph_GCN",
+      "depends_on": [],
+      "gpu_count": 1,
+      "estimated_minutes": 600,
+      "priority": 1
+    },
+    {
+      "id": 5,
+      "name": "DynamicEdgeGraph_GAT",
+      "depends_on": [],
+      "gpu_count": 1,
+      "estimated_minutes": 600,
+      "priority": 1
+    },
+    {
+      "id": 6,
+      "name": "GraphSAGE",
+      "depends_on": [],
+      "gpu_count": 1,
+      "estimated_minutes": 600,
+      "priority": 1
+    },
+    {
+      "id": 7,
+      "name": "AdaptiveCommunityDGNN",
+      "depends_on": [],
+      "gpu_count": 3,
+      "estimated_minutes": 3600,
+      "priority": 3
+    },
+    {
+      "id": 8,
+      "name": "SlidingWindowDGNN",
+      "depends_on": [],
+      "gpu_count": 3,
+      "estimated_minutes": 3600,
+      "priority": 3
+    },
+    {
+      "id": 9,
+      "name": "HybridStaticDynamicGraph",
+      "depends_on": [],
+      "gpu_count": 3,
+      "estimated_minutes": 3600,
+      "priority": 3
+    }
+  ],
+  "total_gpu_budget": 4,
+  "generated": "2023-10-10T00:00:00Z"
+}

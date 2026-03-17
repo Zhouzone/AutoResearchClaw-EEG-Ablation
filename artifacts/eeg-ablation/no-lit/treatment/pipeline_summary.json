@@ -1,0 +1,18 @@
+{
+  "run_id": "rc-nolit-treatment",
+  "stages_executed": 3,
+  "stages_done": 2,
+  "stages_blocked": 1,
+  "stages_failed": 0,
+  "from_stage": 7,
+  "final_stage": 9,
+  "final_status": "blocked_approval",
+  "generated": "2026-03-16T16:44:56+00:00",
+  "content_metrics": {
+    "template_ratio": null,
+    "citation_verify_score": null,
+    "total_citations": null,
+    "verified_citations": null,
+    "degraded_sources": []
+  }
+}

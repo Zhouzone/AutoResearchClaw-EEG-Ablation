@@ -1,0 +1,172 @@
+ablations:
+- expected_effect: Tests the importance of community detection for accuracy improvement.
+  how_it_differs: Omits modularity optimization or spectral clustering in AdaptiveCommunityDGNN.
+  name: NoCommunityDetection
+  what_is_removed: Neural community detection.
+- expected_effect: Tests whether adaptive sliding windows improve classification accuracy.
+  how_it_differs: Uses fixed 3-second windows in SlidingWindowDGNN.
+  name: FixedSlidingWindow
+  what_is_removed: Dynamic window size adjustment.
+- expected_effect: Tests the contribution of dynamic graphs in hybrid models.
+  how_it_differs: Uses only static graphs in HybridStaticDynamicGraph.
+  name: StaticOnlyGraph
+  what_is_removed: Dynamic graph components.
+baselines:
+- GCN
+- GAT
+- GraphSAGE
+- Adam
+- citation: Kipf & Welling, ICLR 2017
+  description: Graph Convolutional Networks with predefined static adjacency matrices
+    based on electrode placement.
+  implementation_spec:
+    algorithm_steps: 1. Construct a static adjacency matrix based on electrode placements.
+      2. Encode EEG signals into node features via MLP. 3. Apply GCN layers to aggregate
+      node features using the static graph. 4. Use a fully connected layer for classification.
+    class_name: StaticGraphGCN
+    differentiator: Uses static graphs only, providing a baseline for evaluating dynamic
+      methods.
+    key_hyperparameters:
+      hidden_dim: 64
+      learning_rate: 0.001
+      num_layers: 2
+    key_methods:
+    - __init__
+    - forward
+    - train_step
+    - predict
+    loss_function: 'Cross-entropy loss: L = CE(y_pred, y_true)'
+  name: StaticGraph_GCN
+  reason: A widely-used baseline for graph-based EEG emotion recognition.
+- citation: Velickovic et al., ICLR 2018
+  description: Graph Attention Networks with dynamically computed edge weights based
+    on feature similarity.
+  implementation_spec:
+    algorithm_steps: 1. Compute pairwise similarity between node features to form
+      dynamic edge weights. 2. Apply GAT layers with attention mechanisms to aggregate
+      node features. 3. Classify aggregated node features using a fully connected
+      layer.
+    class_name: DynamicEdgeGraphGAT
+    differentiator: Uses dynamic edge weights instead of static adjacency matrices.
+    key_hyperparameters:
+      attention_heads: 4
+      hidden_dim: 64
+      learning_rate: 0.001
+    key_methods:
+    - __init__
+    - forward
+    - train_step
+    - predict
+    loss_function: 'Cross-entropy loss: L = CE(y_pred, y_true)'
+  name: DynamicEdgeGraph_GAT
+  reason: A strong dynamic graph baseline that captures temporal variability in edge
+    weights.
+compute_budget:
+- GPUs: 4x NVIDIA A100 (40GB per GPU)
+- total_epochs: 100
+- seeds_per_condition: 10
+- estimated_training_time_per_condition: 10 hours
+- total_experiments: 36 (3 baselines + 3 proposed methods + 3 ablations x 4 datasets)
+datasets:
+- CIFAR-10
+metrics:
+- primary_metric: Accuracy (%)
+- secondary_metrics:
+  - F1-score (macro)
+  - Community transition correlation (Pearson's r)
+  - Training time (seconds)
+  - Success rate (fraction of seeds without divergence)
+- discovery_aligned_endpoints:
+  - Emotion classification accuracy improvement (%)
+  - Window size convergence (seconds)
+objectives:
+- Test Hypothesis 1: Evaluate the efficacy of adaptive DGNNs with neural community
+    detection on EEG-based emotion recognition using curated datasets (DEAP, SEED),
+    focusing on improvements in accuracy and alignment with neurophysiological patterns.
+- Test Hypothesis 2: Investigate whether adaptive temporal sliding windows improve
+    accuracy by modeling personalized emotional resonance zones in EEG data.
+- Test Hypothesis 3: Compare hybrid graph models (combining static and dynamic graph
+    components) to standalone static and dynamic approaches to assess robustness and
+    accuracy.
+- Test Hypothesis 4: Assess the generalizability of dynamic graph methods from curated
+    datasets (DEAP, SEED) to real-world EEG data with noise and unstructured environments.
+proposed_methods:
+- description: Adaptive DGNNs incorporating community detection methods (modularity
+    optimization, spectral clustering).
+  hypothesis: Tests Hypothesis 1.
+  implementation_spec:
+    algorithm_steps: 1. Preprocess EEG signals and extract frequency bands. 2. Construct
+      initial dynamic graphs using feature similarity. 3. Detect neural communities
+      using modularity optimization or spectral clustering. 4. Aggregate features
+      within and between communities using DGNN layers. 5. Classify aggregated features
+      using a fully connected layer.
+    class_name: AdaptiveCommunityDGNN
+    differentiator: Incorporates higher-order neural community structures into dynamic
+      graphs.
+    key_hyperparameters:
+      community_detection_method: spectral_clustering
+      learning_rate: 0.001
+    key_methods:
+    - __init__
+    - forward
+    - train_step
+    - predict
+    loss_function: 'Cross-entropy loss: L = CE(y_pred, y_true)'
+  name: AdaptiveCommunityDGNN
+- description: Adaptive sliding-window DGNNs that dynamically adjust window size based
+    on EEG signal variability.
+  hypothesis: Tests Hypothesis 2.
+  implementation_spec:
+    algorithm_steps: 1. Segment EEG signals into overlapping temporal windows. 2.
+      Dynamically adjust window size based on signal variability. 3. Construct dynamic
+      graphs for each window using feature similarity. 4. Apply DGNN layers to classify
+      emotional states within each window. 5. Aggregate predictions across windows
+      for final classification.
+    class_name: SlidingWindowDGNN
+    differentiator: Dynamically adjusts temporal windows to model personalized emotional
+      processing speeds.
+    key_hyperparameters:
+      learning_rate: 0.001
+      max_window_size: 4 seconds
+      min_window_size: 2 seconds
+    key_methods:
+    - __init__
+    - forward
+    - train_step
+    - predict
+    loss_function: 'Cross-entropy loss: L = CE(y_pred, y_true)'
+  name: SlidingWindowDGNN
+- description: Hybrid models combining static graphs (electrode placement) with dynamic
+    graphs (adaptive edge weights).
+  hypothesis: Tests Hypothesis 3.
+  implementation_spec:
+    algorithm_steps: 1. Construct a static graph based on electrode placements. 2.
+      Construct a dynamic graph based on feature similarity. 3. Combine static and
+      dynamic graphs via weighted adjacency matrices. 4. Apply DGNN layers to aggregate
+      features across both graphs. 5. Classify aggregated features using a fully connected
+      layer.
+    class_name: HybridStaticDynamicGraph
+    differentiator: Combines static robustness with dynamic adaptability.
+    key_hyperparameters:
+      learning_rate: 0.001
+      static_dynamic_weight_ratio: 0.5
+    key_methods:
+    - __init__
+    - forward
+    - train_step
+    - predict
+    loss_function: 'Cross-entropy loss: L = CE(y_pred, y_true)'
+  name: HybridStaticDynamicGraph
+risks:
+- mitigations: Gradient clipping, early stopping on NaN, learning rate warm-up.
+  numerical_stability: Risk of NaN values or divergence during training due to dynamic
+    graph updates.
+- computational_cost: Risk of excessive training times for adaptive methods.
+  mitigations: Optimize modularity detection algorithms, limit dynamic updates per
+    epoch.
+- mitigations: Regularization techniques (e.g., dropout, L2 weight decay), robust
+    preprocessing.
+  overfitting: Risk of dynamic methods overfitting to noise in EEG signals.
+topic: 'Dynamic graph neural networks for EEG-based emotion recognition: comparing
+  dynamic graph construction (adaptive adjacency, temporal sliding-window graphs)
+  against static predefined graphs on DEAP and SEED datasets'

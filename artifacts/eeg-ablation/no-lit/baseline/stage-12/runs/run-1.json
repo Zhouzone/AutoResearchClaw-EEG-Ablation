@@ -1,0 +1,11 @@
+{
+  "run_id": "run-1",
+  "task_id": "sandbox-main",
+  "status": "failed",
+  "metrics": {},
+  "elapsed_sec": 0.0002719120020628907,
+  "stdout": "",
+  "stderr": "[Errno 2] No such file or directory: '/opt/anaconda3/bin/python3'",
+  "timed_out": false,
+  "completed_at": "2026-03-16T15:42:26+00:00"
+}

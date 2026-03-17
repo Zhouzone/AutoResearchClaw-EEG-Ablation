@@ -251,6 +251,19 @@ class PromptsConfig:
     """Configuration for prompt externalization."""
 
     custom_file: str = ""  # Path to custom prompts YAML (empty = use defaults)
+
+@dataclass(frozen=True)
+class CommunityConfig:
+    """Configuration for SciEvalBook community knowledge integration."""
+
+    enabled: bool = False
+    seb_base_url: str = "http://localhost:8000"
+    challenge_ids: tuple[str, ...] = ()
+    related_discipline: str = ""
+    min_score: float = 5.0
+    max_refine_rounds: int = 2
+    refine_threshold: float = 8.0  # READY if >= this score
+
 @dataclass(frozen=True)
 class RCConfig:
     project: ProjectConfig
@@ -264,6 +277,7 @@ class RCConfig:
     experiment: ExperimentConfig = field(default_factory=ExperimentConfig)
     export: ExportConfig = field(default_factory=ExportConfig)
     prompts: PromptsConfig = field(default_factory=PromptsConfig)
+    community: CommunityConfig = field(default_factory=CommunityConfig)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -293,6 +307,7 @@ class RCConfig:
         experiment = data.get("experiment") or {}
         export = data.get("export") or {}
         prompts = data.get("prompts") or {}
+        community = data.get("community") or {}
 
         return cls(
             project=ProjectConfig(
@@ -348,6 +363,15 @@ class RCConfig:
             ),
             prompts=PromptsConfig(
                 custom_file=prompts.get("custom_file", ""),
+            ),
+            community=CommunityConfig(
+                enabled=bool(community.get("enabled", False)),
+                seb_base_url=community.get("seb_base_url", "http://localhost:8000"),
+                challenge_ids=tuple(community.get("challenge_ids") or ()),
+                related_discipline=community.get("related_discipline", ""),
+                min_score=float(community.get("min_score", 5.0)),
+                max_refine_rounds=int(community.get("max_refine_rounds", 2)),
+                refine_threshold=float(community.get("refine_threshold", 8.0)),
             ),
         )
 

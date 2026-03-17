@@ -1,0 +1,65 @@
+{
+  "selected_benchmarks": [
+    {
+      "name": "CIFAR-10",
+      "tier": 1,
+      "domain": "image_classification",
+      "size_mb": 170,
+      "metrics": [
+        "accuracy",
+        "convergence_speed",
+        "final_loss"
+      ],
+      "api": "torchvision.datasets.CIFAR10(root='/workspace/data', download=False)",
+      "source_domain": "optimization",
+      "origin": "knowledge_base",
+      "role": "secondary"
+    }
+  ],
+  "selected_baselines": [
+    {
+      "name": "GCN",
+      "source": "torch_geometric.nn.GCNConv",
+      "paper": "Kipf & Welling, Semi-Supervised Classification with GCN, ICLR 2017",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GAT",
+      "source": "torch_geometric.nn.GATConv",
+      "paper": "Velickovic et al., Graph Attention Networks, ICLR 2018",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GraphSAGE",
+      "source": "torch_geometric.nn.SAGEConv",
+      "paper": "Hamilton et al., Inductive Representation Learning, NeurIPS 2017",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "Adam",
+      "source": "torch.optim.Adam(params, lr=1e-3, weight_decay=1e-4)",
+      "paper": "Kingma & Ba, Adam, ICLR 2015",
+      "pip": [],
+      "source_domain": "optimization",
+      "origin": "knowledge_base"
+    }
+  ],
+  "required_pip": [
+    "torch-geometric"
+  ],
+  "rationale": "The DEAP dataset is the domain standard for EEG-based emotion recognition and is widely used in top-tier research for this topic. SEED is another well-known dataset in this domain, providing complementary validation for the proposed methods. These benchmarks ensure the results are comparable to existing literature and relevant to the research topic. For baselines, GCN is a classic graph neural network model, while GAT and GraphSAGE represent more recent advancements in GNN architectures. Adam is included as a standard optimization baseline to ensure fair comparisons across models. This selection balances classic and recent approaches while focusing on graph-based methods relevant to the research topic.",
+  "experiment_notes": "Ensure the DEAP and SEED datasets are preprocessed to construct both static and dynamic graph representations. Use consistent metrics such as accuracy and F1-score for evaluation. For dynamic graph construction, implement both adaptive adjacency and temporal sliding-window methods. Limit the training time per model to fit within the 1800s budget, leveraging GPU acceleration efficiently. Use cross-validation to ensure robust results and report standard deviations for all metrics.",
+  "total_filtered": 14
+}

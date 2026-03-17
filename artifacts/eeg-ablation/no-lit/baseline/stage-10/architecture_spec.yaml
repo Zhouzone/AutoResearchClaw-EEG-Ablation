@@ -1,0 +1,66 @@
+files:
+  - name: main.py
+    purpose: Entry point, runs all conditions sequentially
+    key_functions: [main, run_condition, aggregate_results]
+
+  - name: models.py
+    purpose: Model definitions for all experimental conditions
+    classes:
+      - name: BaseMethod
+        methods: [__init__, forward, fit, evaluate, get_config]
+        differentiator: Abstract base class defining core methods for all experiments.
+      - name: StaticGraphGCN(BaseMethod)
+        methods: [__init__, forward, fit]
+        differentiator: Implements static graph convolution using predefined adjacency matrices.
+      - name: DynamicEdgeGraphGAT(BaseMethod)
+        methods: [__init__, forward, fit, _compute_attention]
+        differentiator: Implements dynamic edge computation and attention mechanisms for graph aggregation.
+      - name: AdaptiveCommunityDGNN(BaseMethod)
+        methods: [__init__, forward, fit, _detect_communities]
+        differentiator: Incorporates neural community detection into dynamic graph construction.
+      - name: SlidingWindowDGNN(BaseMethod)
+        methods: [__init__, forward, fit, _adjust_window_size]
+        differentiator: Dynamically adjusts temporal sliding windows based on EEG signal variability.
+      - name: HybridStaticDynamicGraph(BaseMethod)
+        methods: [__init__, forward, fit, _combine_graphs]
+        differentiator: Combines static and dynamic graphs using weighted adjacency matrices.
+
+  - name: data_utils.py
+    purpose: Data loading and preprocessing
+    key_functions: [load_dataset, preprocess_eeg, split_dataset]
+    differentiator: Shared utilities for loading and preprocessing EEG datasets (DEAP, SEED).
+
+  - name: metrics.py
+    purpose: Metric computation and logging
+    key_functions: [compute_accuracy, compute_f1_score, compute_community_transition_correlation]
+    differentiator: Implements primary and secondary metrics, including accuracy and community transition correlation.
+
+  - name: config.py
+    purpose: Defines global hyperparameters and experiment settings
+    key_variables: [DATA_PATHS, HYPERPARAMETERS, COMPUTE_BUDGET, METRICS]
+    differentiator: Centralized configuration file for datasets, hyperparameters, and compute resources.
+
+data_flow:
+  - step: Load dataset
+    input: raw EEG data (DEAP, SEED)
+    output: train/validation/test splits
+  - step: Preprocess data
+    input: raw EEG signals
+    output: normalized node features, adjacency matrices
+  - step: Train model
+    input: train split, model hyperparameters
+    output: trained model weights
+  - step: Evaluate model
+    input: validation split, trained model
+    output: accuracy, F1-score, community transition correlation
+  - step: Aggregate results
+    input: metrics from all conditions
+    output: summary report (accuracy, secondary metrics, training time)
+
+dependencies:
+  - torch: For model definitions, training, and evaluation
+  - numpy: For numerical operations and preprocessing
+  - scipy: For modularity optimization, spectral clustering
+  - sklearn: For dataset splitting and evaluation metrics
+  - pandas: For logging and result aggregation
+  - yaml: For configuration file parsing

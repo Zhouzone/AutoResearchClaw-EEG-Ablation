@@ -1,0 +1,80 @@
+{
+  "selected_benchmarks": [
+    {
+      "name": "Cora",
+      "tier": 2,
+      "domain": "node_classification",
+      "size_mb": 5,
+      "classes": 7,
+      "samples": 2708,
+      "metrics": [
+        "accuracy",
+        "f1_macro"
+      ],
+      "api": "torch_geometric.datasets.Planetoid(root='/workspace/data', name='Cora')",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base",
+      "role": "secondary"
+    }
+  ],
+  "selected_baselines": [
+    {
+      "name": "GCN",
+      "source": "torch_geometric.nn.GCNConv",
+      "paper": "Kipf & Welling, Semi-Supervised Classification with GCN, ICLR 2017",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GAT",
+      "source": "torch_geometric.nn.GATConv",
+      "paper": "Velickovic et al., Graph Attention Networks, ICLR 2018",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GraphSAGE",
+      "source": "torch_geometric.nn.SAGEConv",
+      "paper": "Hamilton et al., Inductive Representation Learning, NeurIPS 2017",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GIN",
+      "source": "torch_geometric.nn.GINConv",
+      "paper": "Xu et al., How Powerful are GNNs?, ICLR 2019",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    }
+  ],
+  "matched_domains": [
+    "graph_neural_networks",
+    "llm_finetuning"
+  ],
+  "data_loader_code": "import os\nfrom torch_geometric.datasets import Planetoid\nfrom torch_geometric.data import DataLoader\nfrom sklearn.model_selection import train_test_split\n\nDATA_CONFIG = {\n    'Cora': {\n        'num_classes': 7,\n        'input_shape': (1433,),\n        'metrics': ['accuracy', 'f1_macro'],\n        'tier': 2\n    }\n}\n\ndef get_datasets(data_root='/workspace/data') -> dict:\n    datasets = {}\n    \n    try:\n        # Load the Cora dataset using Planetoid API\n        cora_dataset = Planetoid(root=os.path.join(data_root, 'Cora'), name='Cora', split='public')\n        \n        # Split the dataset into train, validation, and test sets\n        data = cora_dataset[0]\n        train_mask, val_test_mask = train_test_split(range(data.num_nodes), test_size=0.4, random_state=42)\n        val_mask, test_mask = train_test_split(val_test_mask, test_size=0.5, random_state=42)\n        \n        # Create DataLoaders for train, val, and test\n        datasets['train'] = DataLoader([data.subgraph(train_mask)], batch_size=1, shuffle=True)\n        datasets['val'] = DataLoader([data.subgraph(val_mask)], batch_size=1, shuffle=False)\n        datasets['test'] = DataLoader([data.subgraph(test_mask)], batch_size=1, shuffle=False)\n    \n    except Exception as e:\n        raise RuntimeError(f\"Error loading Cora dataset: {e}\")\n    \n    return datasets",
+  "baseline_code": "import torch\nimport torch.nn as nn\nfrom torch_geometric.nn import GCNConv, GATConv, SAGEConv, GINConv\nfrom torch_geometric.nn.models import GCN, GAT, GraphSAGE, GIN\n\nBASELINES_CONFIG = {\n    \"GCN\": {\n        \"param_count\": \"Depends on hidden_dim and layers\",\n        \"paper\": \"Kipf & Welling, Semi-Supervised Classification with GCN, ICLR 2017\",\n        \"source\": \"torch_geometric.nn.GCNConv\",\n    },\n    \"GAT\": {\n        \"param_count\": \"Depends on hidden_dim, heads, and layers\",\n        \"paper\": \"Velickovic et al., Graph Attention Networks, ICLR 2018\",\n        \"source\": \"torch_geometric.nn.GATConv\",\n    },\n    \"GraphSAGE\": {\n        \"param_count\": \"Depends on hidden_dim and layers\",\n        \"paper\": \"Hamilton et al., Inductive Representation Learning, NeurIPS 2017\",\n        \"source\": \"torch_geometric.nn.SAGEConv\",\n    },\n    \"GIN\": {\n        \"param_count\": \"Depends on hidden_dim and layers\",\n        \"paper\": \"Xu et al., How Powerful are GNNs?, ICLR 2019\",\n        \"source\": \"torch_geometric.nn.GINConv\",\n    },\n}\n\ndef get_baselines(num_classes, device='cuda') -> dict:\n    baselines = {}\n\n    # GCN\n    class GCNModel(nn.Module):\n        def __init__(self, input_dim, hidden_dim, num_classes):\n            super(GCNModel, self).__init__()\n            self.conv1 = GCNConv(input_dim, hidden_dim)\n            self.conv2 = GCNConv(hidden_dim, num_classes)\n\n        def forward(self, x, edge_index):\n            x = self.conv1(x, edge_index).relu()\n            x = self.conv2(x, edge_index)\n            return x\n\n    baselines[\"GCN\"] = GCNModel(input_dim=1433, hidden_dim=16, num_classes=num_classes).to(device)\n\n    # GAT\n    class GATModel(nn.Module):\n        def __init__(self, input_dim, hidden_dim, num_classes, heads=8):\n            super(GATModel, self).__init__()\n            self.conv1 = GATConv(input_dim, hidden_dim, heads=heads)\n            self.conv2 = GATConv(hidden_dim * heads, num_classes, heads=1)\n\n        def forward(self, x, edge_index):\n            x = self.conv1(x, edge_index).relu()\n            x = self.conv2(x, edge_index)\n            return x\n\n    baselines[\"GAT\"] = GATModel(input_dim=1433, hidden_dim=8, num_classes=num_classes).to(device)\n\n    # GraphSAGE\n    class GraphSAGEModel(nn.Module):\n        def __init__(self, input_dim, hidden_dim, num_classes):\n            super(GraphSAGEModel, self).__init__()\n            self.conv1 = SAGEConv(input_dim, hidden_dim)\n            self.conv2 = SAGEConv(hidden_dim, num_classes)\n\n        def forward(self, x, edge_index):\n            x = self.conv1(x, edge_index).relu()\n            x = self.conv2(x, edge_index)\n            return x\n\n    baselines[\"GraphSAGE\"] = GraphSAGEModel(input_dim=1433, hidden_dim=16, num_classes=num_classes).to(device)\n\n    # GIN\n    class GINModel(nn.Module):\n        def __init__(self, input_dim, hidden_dim, num_classes):\n            super(GINModel, self).__init__()\n            nn1 = nn.Sequential(nn.Linear(input_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, hidden_dim))\n            nn2 = nn.Sequential(nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, num_classes))\n            self.conv1 = GINConv(nn1)\n            self.conv2 = GINConv(nn2)\n\n        def forward(self, x, edge_index):\n            x = self.conv1(x, edge_index).relu()\n            x = self.conv2(x, edge_index)\n            return x\n\n    baselines[\"GIN\"] = GINModel(input_dim=1433, hidden_dim=16, num_classes=num_classes).to(device)\n\n    return baselines",
+  "setup_code": "\"\"\"Setup script for dataset downloading and environment preparation.\n\nThis script runs during Phase 1 (setup) of the Docker sandbox,\nwhen network access is available. It downloads datasets and installs\nany additional dependencies.\n\"\"\"\n\nimport os\nimport sys\n\nDATA_ROOT = \"/workspace/data\"\nHF_CACHE = os.path.join(DATA_ROOT, \"hf\")\n\n\ndef download_datasets():\n    \"\"\"Download all required datasets.\"\"\"\n    os.makedirs(DATA_ROOT, exist_ok=True)\n    os.makedirs(HF_CACHE, exist_ok=True)\n\n\nif __name__ == \"__main__\":\n    download_datasets()\n    print(\"Setup complete.\")",
+  "requirements": "torch-geometric",
+  "rationale": "The DEAP dataset is the domain standard for EEG-based emotion recognition and is widely used in top-tier research, making it the optimal primary benchmark. The SEED dataset complements DEAP as it is another well-established dataset in this domain, providing additional validation for the proposed methods. For baselines, GCN and GAT are classic models that are foundational in graph neural networks, while GraphSAGE and GIN are more recent and powerful architectures that can provide a comprehensive comparison. These baselines ensure a balance between classic and state-of-the-art methods, aligning with the research focus on dynamic graph construction techniques.",
+  "experiment_notes": "Ensure that the DEAP and SEED datasets are preprocessed to construct both static predefined graphs and dynamic graphs (adaptive adjacency and temporal sliding-window graphs). Use metrics like accuracy and F1-score for evaluation, as they are standard for emotion recognition tasks. Given the GPU and time constraints, batch processing and optimized graph construction methods should be employed to manage computational load. Additionally, hyperparameter tuning should be consistent across all baselines to ensure fair comparisons.",
+  "validation_passed": false,
+  "validation_warnings": [],
+  "total_llm_calls": 10,
+  "total_tokens": 11346,
+  "elapsed_sec": 61.628844990998914
+}

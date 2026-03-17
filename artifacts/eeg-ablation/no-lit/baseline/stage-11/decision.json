@@ -1,0 +1,15 @@
+{
+  "stage_id": "11-resource_planning",
+  "run_id": "rc-no-lit-baseline-20260316T153407",
+  "status": "done",
+  "decision": "proceed",
+  "output_artifacts": [
+    "schedule.json"
+  ],
+  "evidence_refs": [
+    "stage-11/schedule.json"
+  ],
+  "error": null,
+  "ts": "2026-03-16T15:42:26+00:00",
+  "next_stage": 12
+}

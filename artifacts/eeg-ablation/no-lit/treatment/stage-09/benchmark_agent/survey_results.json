@@ -1,0 +1,209 @@
+{
+  "matched_domains": [
+    "graph_neural_networks",
+    "llm_finetuning"
+  ],
+  "benchmarks": [
+    {
+      "name": "Cora",
+      "tier": 2,
+      "domain": "node_classification",
+      "size_mb": 5,
+      "classes": 7,
+      "samples": 2708,
+      "metrics": [
+        "accuracy",
+        "f1_macro"
+      ],
+      "api": "torch_geometric.datasets.Planetoid(root='/workspace/data', name='Cora')",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "CiteSeer",
+      "tier": 2,
+      "domain": "node_classification",
+      "size_mb": 5,
+      "classes": 6,
+      "samples": 3327,
+      "metrics": [
+        "accuracy"
+      ],
+      "api": "torch_geometric.datasets.Planetoid(root='/workspace/data', name='CiteSeer')",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "PubMed",
+      "tier": 2,
+      "domain": "node_classification",
+      "size_mb": 20,
+      "classes": 3,
+      "samples": 19717,
+      "metrics": [
+        "accuracy"
+      ],
+      "api": "torch_geometric.datasets.Planetoid(root='/workspace/data', name='PubMed')",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "ogbn-arxiv",
+      "tier": 2,
+      "domain": "node_classification",
+      "size_mb": 200,
+      "samples": 169343,
+      "metrics": [
+        "accuracy"
+      ],
+      "api": "ogb.nodeproppred.PygNodePropPredDataset(name='ogbn-arxiv', root='/workspace/data')",
+      "pip": [
+        "ogb",
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "ogbg-molhiv",
+      "tier": 2,
+      "domain": "graph_classification",
+      "size_mb": 50,
+      "samples": 41127,
+      "metrics": [
+        "auroc"
+      ],
+      "api": "ogb.graphproppred.PygGraphPropPredDataset(name='ogbg-molhiv', root='/workspace/data')",
+      "pip": [
+        "ogb",
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "Alpaca",
+      "tier": 2,
+      "domain": "instruction_following",
+      "size_mb": 25,
+      "samples": 52000,
+      "metrics": [
+        "loss",
+        "perplexity"
+      ],
+      "api": "datasets.load_dataset('tatsu-lab/alpaca', cache_dir='/workspace/data/hf')",
+      "source_domain": "llm_finetuning",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "MMLU",
+      "tier": 2,
+      "domain": "general_knowledge",
+      "size_mb": 12,
+      "classes": 57,
+      "metrics": [
+        "accuracy"
+      ],
+      "api": "datasets.load_dataset('cais/mmlu', 'all', cache_dir='/workspace/data/hf')",
+      "source_domain": "llm_finetuning",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "HellaSwag",
+      "tier": 2,
+      "domain": "commonsense_reasoning",
+      "size_mb": 70,
+      "metrics": [
+        "accuracy"
+      ],
+      "api": "datasets.load_dataset('Rowan/hellaswag', cache_dir='/workspace/data/hf')",
+      "source_domain": "llm_finetuning",
+      "origin": "knowledge_base"
+    }
+  ],
+  "baselines": [
+    {
+      "name": "GCN",
+      "source": "torch_geometric.nn.GCNConv",
+      "paper": "Kipf & Welling, Semi-Supervised Classification with GCN, ICLR 2017",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GAT",
+      "source": "torch_geometric.nn.GATConv",
+      "paper": "Velickovic et al., Graph Attention Networks, ICLR 2018",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GraphSAGE",
+      "source": "torch_geometric.nn.SAGEConv",
+      "paper": "Hamilton et al., Inductive Representation Learning, NeurIPS 2017",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "GIN",
+      "source": "torch_geometric.nn.GINConv",
+      "paper": "Xu et al., How Powerful are GNNs?, ICLR 2019",
+      "pip": [
+        "torch-geometric"
+      ],
+      "source_domain": "graph_neural_networks",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "Full Fine-Tuning",
+      "source": "Standard supervised fine-tuning on all parameters",
+      "paper": "Baseline approach",
+      "pip": [
+        "transformers"
+      ],
+      "source_domain": "llm_finetuning",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "LoRA",
+      "source": "peft.LoraConfig(r=16, lora_alpha=32, target_modules=['q_proj', 'v_proj'])",
+      "paper": "Hu et al., LoRA, ICLR 2022",
+      "pip": [
+        "peft"
+      ],
+      "source_domain": "llm_finetuning",
+      "origin": "knowledge_base"
+    },
+    {
+      "name": "QLoRA",
+      "source": "BitsAndBytesConfig(load_in_4bit=True) + LoRA",
+      "paper": "Dettmers et al., QLoRA, NeurIPS 2023",
+      "pip": [
+        "peft",
+        "bitsandbytes"
+      ],
+      "source_domain": "llm_finetuning",
+      "origin": "knowledge_base"
+    }
+  ],
+  "hf_datasets_found": 0,
+  "llm_fallback_used": false,
+  "rationale": ""
+}

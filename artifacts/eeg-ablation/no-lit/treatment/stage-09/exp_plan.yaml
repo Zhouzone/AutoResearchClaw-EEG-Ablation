@@ -1,0 +1,30 @@
+ablations:
+- no_key_component
+- reduced_capacity
+baselines:
+- GCN
+- GAT
+- GraphSAGE
+- GIN
+- standard_baseline
+- oracle_upper_bound
+compute_budget:
+  max_gpu: 1
+  max_hours: 4
+datasets:
+- Cora
+generated: '2026-03-16T16:43:54+00:00'
+metrics:
+- accuracy
+- secondary_metric
+objectives:
+- Evaluate hypotheses with controlled ablations
+proposed_methods:
+- proposed_method
+- proposed_method_variant
+risks:
+- overfitting
+- data leakage
+topic: 'Dynamic graph neural networks for EEG-based emotion recognition: comparing
+  dynamic graph construction (adaptive adjacency, temporal sliding-window graphs)
+  against static predefined graphs on DEAP and SEED datasets'
