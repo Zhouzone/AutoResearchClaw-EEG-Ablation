@@ -12,21 +12,22 @@ ablations:
   name: StaticOnlyGraph
   what_is_removed: Dynamic graph components.
 baselines:
-- GCN
-- GAT
-- GraphSAGE
-- Adam
 - citation: Kipf & Welling, ICLR 2017
   description: Graph Convolutional Networks with predefined static adjacency matrices
-    based on electrode placement.
+    based on electrode placement (14 Emotiv EPOC channels).
   implementation_spec:
-    algorithm_steps: 1. Construct a static adjacency matrix based on electrode placements.
-      2. Encode EEG signals into node features via MLP. 3. Apply GCN layers to aggregate
-      node features using the static graph. 4. Use a fully connected layer for classification.
+    algorithm_steps: 1. Download DREAMER dataset from HuggingFace (monster-monash/DREAMERA
+      for arousal, monster-monash/DREAMERV for valence). 2. Load numpy arrays (X shape
+      170246x256x14, y binary labels). 3. Construct a static adjacency matrix based
+      on Emotiv EPOC electrode placements (AF3, F7, F3, FC5, T7, P7, O1, O2, P8,
+      T8, FC6, F4, F8, AF4). 4. Encode EEG signals into node features via MLP. 5.
+      Apply GCN layers to aggregate node features using the static graph. 6. Use a
+      fully connected layer for binary classification.
     class_name: StaticGraphGCN
     differentiator: Uses static graphs only, providing a baseline for evaluating dynamic
       methods.
     key_hyperparameters:
+      batch_size: 64
       hidden_dim: 64
       learning_rate: 0.001
       num_layers: 2
@@ -40,16 +41,17 @@ baselines:
   reason: A widely-used baseline for graph-based EEG emotion recognition.
 - citation: Velickovic et al., ICLR 2018
   description: Graph Attention Networks with dynamically computed edge weights based
-    on feature similarity.
+    on feature similarity across 14 EEG channels.
   implementation_spec:
-    algorithm_steps: 1. Compute pairwise similarity between node features to form
-      dynamic edge weights. 2. Apply GAT layers with attention mechanisms to aggregate
-      node features. 3. Classify aggregated node features using a fully connected
-      layer.
+    algorithm_steps: 1. Load DREAMER dataset from HuggingFace. 2. Compute pairwise
+      similarity between channel features to form dynamic edge weights. 3. Apply GAT
+      layers with attention mechanisms to aggregate node features. 4. Classify aggregated
+      node features using a fully connected layer.
     class_name: DynamicEdgeGraphGAT
     differentiator: Uses dynamic edge weights instead of static adjacency matrices.
     key_hyperparameters:
       attention_heads: 4
+      batch_size: 64
       hidden_dim: 64
       learning_rate: 0.001
     key_methods:
@@ -62,49 +64,60 @@ baselines:
   reason: A strong dynamic graph baseline that captures temporal variability in edge
     weights.
 compute_budget:
-- GPUs: 4x NVIDIA A100 (40GB per GPU)
-- total_epochs: 100
-- seeds_per_condition: 10
-- estimated_training_time_per_condition: 10 hours
-- total_experiments: 36 (3 baselines + 3 proposed methods + 3 ablations x 4 datasets)
+  max_gpu: 1
+  max_gpu_memory_gb: 6
+  total_epochs: 50
+  seeds_per_condition: 3
+  estimated_training_time_per_condition: 30 minutes
+  total_experiments: 9 (2 baselines + 3 proposed methods + 3 ablations + 1 dataset)
 datasets:
-- CIFAR-10
+- name: DREAMER (DREAMERA for arousal, DREAMERV for valence)
+  source: HuggingFace (monster-monash/DREAMERA, monster-monash/DREAMERV)
+  download_code: |
+    from huggingface_hub import hf_hub_download
+    import numpy as np
+    X_path = hf_hub_download(repo_id="monster-monash/DREAMERA", filename="DREAMERA_X.npy", repo_type="dataset")
+    y_path = hf_hub_download(repo_id="monster-monash/DREAMERA", filename="DREAMERA_Y.npy", repo_type="dataset")
+    X = np.load(X_path)  # shape: (170246, 256, 14) - samples x timesteps x channels
+    y = np.load(y_path)  # shape: (170246,) - binary arousal labels
+  subjects: 23
+  channels: 14
+  channel_names: [AF3, F7, F3, FC5, T7, P7, O1, O2, P8, T8, FC6, F4, F8, AF4]
+  sampling_rate: 128
+  labels: Binary arousal (DREAMERA) or binary valence (DREAMERV)
+  total_samples: 170246
+  sample_length: 256 (2-second windows)
 metrics:
 - primary_metric: Accuracy (%)
 - secondary_metrics:
   - F1-score (macro)
-  - Community transition correlation (Pearson's r)
   - Training time (seconds)
-  - Success rate (fraction of seeds without divergence)
-- discovery_aligned_endpoints:
-  - Emotion classification accuracy improvement (%)
-  - Window size convergence (seconds)
+  - GPU memory usage (MB)
 objectives:
-- Test Hypothesis 1: Evaluate the efficacy of adaptive DGNNs with neural community
-    detection on EEG-based emotion recognition using curated datasets (DEAP, SEED),
-    focusing on improvements in accuracy and alignment with neurophysiological patterns.
+- Test Hypothesis 1: Evaluate adaptive DGNNs with neural community detection on DREAMER
+    EEG emotion recognition, focusing on accuracy and alignment with neurophysiological
+    patterns across 14 Emotiv EPOC channels.
 - Test Hypothesis 2: Investigate whether adaptive temporal sliding windows improve
-    accuracy by modeling personalized emotional resonance zones in EEG data.
-- Test Hypothesis 3: Compare hybrid graph models (combining static and dynamic graph
-    components) to standalone static and dynamic approaches to assess robustness and
-    accuracy.
-- Test Hypothesis 4: Assess the generalizability of dynamic graph methods from curated
-    datasets (DEAP, SEED) to real-world EEG data with noise and unstructured environments.
+    accuracy by modeling personalized emotional processing in DREAMER data.
+- Test Hypothesis 3: Compare hybrid graph models (static + dynamic) to standalone
+    approaches on DREAMER for robustness and accuracy.
 proposed_methods:
 - description: Adaptive DGNNs incorporating community detection methods (modularity
-    optimization, spectral clustering).
+    optimization, spectral clustering) on 14-channel EEG graphs.
   hypothesis: Tests Hypothesis 1.
   implementation_spec:
-    algorithm_steps: 1. Preprocess EEG signals and extract frequency bands. 2. Construct
-      initial dynamic graphs using feature similarity. 3. Detect neural communities
-      using modularity optimization or spectral clustering. 4. Aggregate features
-      within and between communities using DGNN layers. 5. Classify aggregated features
-      using a fully connected layer.
+    algorithm_steps: 1. Download DREAMER from HuggingFace. 2. Preprocess EEG signals
+      (normalize per channel). 3. Construct initial dynamic graphs using feature similarity
+      across 14 channels. 4. Detect neural communities using spectral clustering.
+      5. Aggregate features within and between communities using DGNN layers. 6. Binary
+      classification (arousal or valence).
     class_name: AdaptiveCommunityDGNN
     differentiator: Incorporates higher-order neural community structures into dynamic
       graphs.
     key_hyperparameters:
+      batch_size: 64
       community_detection_method: spectral_clustering
+      hidden_dim: 64
       learning_rate: 0.001
     key_methods:
     - __init__
@@ -114,21 +127,21 @@ proposed_methods:
     loss_function: 'Cross-entropy loss: L = CE(y_pred, y_true)'
   name: AdaptiveCommunityDGNN
 - description: Adaptive sliding-window DGNNs that dynamically adjust window size based
-    on EEG signal variability.
+    on EEG signal variability on DREAMER data.
   hypothesis: Tests Hypothesis 2.
   implementation_spec:
-    algorithm_steps: 1. Segment EEG signals into overlapping temporal windows. 2.
-      Dynamically adjust window size based on signal variability. 3. Construct dynamic
-      graphs for each window using feature similarity. 4. Apply DGNN layers to classify
-      emotional states within each window. 5. Aggregate predictions across windows
-      for final classification.
+    algorithm_steps: 1. Load DREAMER data. 2. Segment EEG signals into overlapping
+      temporal sub-windows within each 2-second sample. 3. Dynamically adjust sub-window
+      size based on signal variability. 4. Construct dynamic graphs per sub-window.
+      5. Apply DGNN layers and aggregate predictions.
     class_name: SlidingWindowDGNN
     differentiator: Dynamically adjusts temporal windows to model personalized emotional
       processing speeds.
     key_hyperparameters:
+      batch_size: 64
       learning_rate: 0.001
-      max_window_size: 4 seconds
-      min_window_size: 2 seconds
+      max_window_size: 128 timesteps (1 second)
+      min_window_size: 32 timesteps (0.25 seconds)
     key_methods:
     - __init__
     - forward
@@ -136,18 +149,18 @@ proposed_methods:
     - predict
     loss_function: 'Cross-entropy loss: L = CE(y_pred, y_true)'
   name: SlidingWindowDGNN
-- description: Hybrid models combining static graphs (electrode placement) with dynamic
-    graphs (adaptive edge weights).
+- description: Hybrid models combining static graphs (Emotiv EPOC electrode placement)
+    with dynamic graphs (adaptive edge weights) on DREAMER.
   hypothesis: Tests Hypothesis 3.
   implementation_spec:
-    algorithm_steps: 1. Construct a static graph based on electrode placements. 2.
-      Construct a dynamic graph based on feature similarity. 3. Combine static and
-      dynamic graphs via weighted adjacency matrices. 4. Apply DGNN layers to aggregate
-      features across both graphs. 5. Classify aggregated features using a fully connected
-      layer.
+    algorithm_steps: 1. Load DREAMER data. 2. Construct static graph based on Emotiv
+      EPOC electrode distances. 3. Construct dynamic graph based on feature similarity.
+      4. Combine via weighted adjacency. 5. DGNN layers + classification.
     class_name: HybridStaticDynamicGraph
     differentiator: Combines static robustness with dynamic adaptability.
     key_hyperparameters:
+      batch_size: 64
+      hidden_dim: 64
       learning_rate: 0.001
       static_dynamic_weight_ratio: 0.5
     key_methods:
@@ -161,12 +174,11 @@ risks:
 - mitigations: Gradient clipping, early stopping on NaN, learning rate warm-up.
   numerical_stability: Risk of NaN values or divergence during training due to dynamic
     graph updates.
-- computational_cost: Risk of excessive training times for adaptive methods.
-  mitigations: Optimize modularity detection algorithms, limit dynamic updates per
-    epoch.
-- mitigations: Regularization techniques (e.g., dropout, L2 weight decay), robust
-    preprocessing.
+- computational_cost: Risk of GPU OOM on 6GB GPU with large batch sizes.
+  mitigations: Reduce batch_size to 32 or 16 if OOM. Use gradient accumulation.
+- mitigations: Dropout (0.3), L2 weight decay (1e-4), early stopping.
   overfitting: Risk of dynamic methods overfitting to noise in EEG signals.
 topic: 'Dynamic graph neural networks for EEG-based emotion recognition: comparing
   dynamic graph construction (adaptive adjacency, temporal sliding-window graphs)
-  against static predefined graphs on DEAP and SEED datasets'
+  against static predefined graphs on the DREAMER dataset (14-channel Emotiv EPOC,
+  23 subjects, binary valence/arousal labels, available from HuggingFace monster-monash/DREAMERA)'

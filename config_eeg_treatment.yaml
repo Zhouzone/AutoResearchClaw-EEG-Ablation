@@ -3,7 +3,7 @@ project:
   mode: "full-auto"
 
 research:
-  topic: "Dynamic graph neural networks for EEG-based emotion recognition: comparing dynamic graph construction (adaptive adjacency, temporal sliding-window graphs) against static predefined graphs on DEAP and SEED datasets"
+  topic: "Dynamic graph neural networks for EEG-based emotion recognition: comparing dynamic graph construction (adaptive adjacency, temporal sliding-window graphs) against static predefined graphs on the DREAMER dataset (14-channel Emotiv EPOC, 23 subjects, binary valence/arousal labels, available from HuggingFace monster-monash/DREAMERA)"
   domains:
     - "neuroscience"
     - "deep-learning"
@@ -85,6 +85,8 @@ experiment:
       - "csv"
       - "pickle"
       - "h5py"
+      - "datasets"
+      - "huggingface_hub"
 
 prompts:
   custom_file: ""

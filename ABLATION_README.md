@@ -96,19 +96,33 @@ AutoResearchClaw-EEG-Ablation/
 pip install torch torchvision torch_geometric
 pip install mne scikit-learn pandas numpy scipy matplotlib
 pip install openai pyyaml requests h5py
+pip install datasets huggingface_hub   # DREAMER 数据集自动下载
 pip install -e .  # 安装 AutoResearchClaw 包本身
 ```
 
 ### 数据集
 
-实验使用两个公开 EEG 情感识别数据集：
+实验使用 HuggingFace 上的 DREAMER 数据集（**无需申请，自动下载**）：
 
-| 数据集 | 被试 | 通道 | 情感标签 | 获取方式 |
-|--------|------|------|---------|---------|
-| **DEAP** | 32 | 32 | Valence/Arousal (2D) | http://www.eecs.qmul.ac.uk/mmv/datasets/deap/ (需申请) |
-| **SEED** | 15 | 62 | Positive/Neutral/Negative | https://bcmi.sjtu.edu.cn/home/seed/ (需申请) |
+| 数据集 | 被试 | 通道 | 情感标签 | 样本数 | 获取方式 |
+|--------|------|------|---------|--------|---------|
+| **DREAMERA** | 23 | 14 (Emotiv EPOC) | Binary Arousal | 170,246 | `hf_hub_download("monster-monash/DREAMERA")` |
+| **DREAMERV** | 23 | 14 (Emotiv EPOC) | Binary Valence | 170,246 | `hf_hub_download("monster-monash/DREAMERV")` |
 
-> **注意**: 两个数据集都需要**提前申请下载**，审批通常需要 1-3 天。请在跑实验前确保数据已就位。
+每个样本为 256×14 的时间序列（2秒窗口，128Hz采样率）。14通道对应 Emotiv EPOC 电极：AF3, F7, F3, FC5, T7, P7, O1, O2, P8, T8, FC6, F4, F8, AF4。
+
+```python
+# 自动下载（首次约 500MB，之后使用缓存）
+from huggingface_hub import hf_hub_download
+import numpy as np
+
+X_path = hf_hub_download(repo_id="monster-monash/DREAMERA", filename="DREAMERA_X.npy", repo_type="dataset")
+y_path = hf_hub_download(repo_id="monster-monash/DREAMERA", filename="DREAMERA_Y.npy", repo_type="dataset")
+X = np.load(X_path)  # (170246, 256, 14)
+y = np.load(y_path)  # (170246,) binary
+```
+
+> **集群离线？** 先在可联网机器下载：`huggingface-cli download monster-monash/DREAMERA --repo-type dataset --local-dir ./data/dreamer`，然后 scp 到集群。
 
 ### LLM API
 
@@ -230,7 +244,7 @@ print('B 组完成')
 |------|---------|
 | LLM API 不通 | 设代理或换 endpoint |
 | CUDA OOM | 减小 batch: 改 Stage 10 生成的代码中 `batch_size` (16→8) |
-| 数据集未下载 | 先申请 DEAP/SEED，放到 `data/` 目录 |
+| 数据集未下载 | DREAMER 自动从 HuggingFace 下载；集群离线时先 `huggingface-cli download` 再 scp |
 | torch_geometric 缺失 | `pip install torch_geometric` (需匹配 CUDA 版本) |
 | 实验代码 bug | ARC 的 Stage 13 (Iterative Refine) 会自动修复，最多 5 轮 |
 
