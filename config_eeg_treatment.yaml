@@ -58,7 +58,7 @@ experiment:
   metric_key: "accuracy"
   metric_direction: "maximize"
   sandbox:
-    python_path: "/opt/anaconda3/bin/python3"
+    python_path: "python3"  # uses PATH; override for cluster
     gpu_required: true
     max_memory_mb: 6144
     allowed_imports:
